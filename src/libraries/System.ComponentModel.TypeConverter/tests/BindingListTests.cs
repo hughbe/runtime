@@ -220,12 +220,29 @@ namespace System.ComponentModel.Tests
         }
 
         [Fact]
-        public void RemoteAt_AllowRemoveFalse_ThrowsNotSupportedException()
+        public void RemoveAt_AllowRemoveFalse_ThrowsNotSupportedException()
         {
             var list = new List<object> { new object() };
             var bindingList = new BindingList<object>(list) { AllowRemove = false };
 
             Assert.Throws<NotSupportedException>(() => bindingList.RemoveAt(0));
+        }
+
+        [Fact]
+        public void RemoveAt_AllowRemoveFalseAddNew_Success()
+        {
+            var list = new List<object> { new object() };
+            var bindingList = new BindingList<object>(list)
+            {
+                AllowRemove = false
+            };
+            bindingList.AddNew();
+            Assert.Equal(2, bindingList.Count);
+
+            Assert.Throws<NotSupportedException>(() => bindingList.RemoveAt(0));
+            
+            bindingList.RemoveAt(1);
+            Assert.Equal(1, bindingList.Count);
         }
 
         [Fact]
@@ -582,6 +599,34 @@ namespace System.ComponentModel.Tests
 
             Assert.Throws<MissingMethodException>(() => bindingList.AddNew());
             Assert.False(calledAddingNew);
+        }
+
+        [Theory]
+        [InlineData(-1)]
+        [InlineData(0)]
+        [InlineData(1)]
+        public void CancelNew_InvokeNotAddedNew_Nop(int itemIndex)
+        {
+            var bindingList = new BindingList<string>();
+            bool calledListChanged = false;
+            bindingList.ListChanged += (object sender, ListChangedEventArgs e) => calledListChanged = true;
+
+            bindingList.CancelNew(itemIndex);
+            Assert.False(calledListChanged);
+        }
+
+        [Theory]
+        [InlineData(-1)]
+        [InlineData(0)]
+        [InlineData(1)]
+        public void EndNew_InvokeNotAddedNew_Nop(int itemIndex)
+        {
+            var bindingList = new BindingList<string>();
+            bool calledListChanged = false;
+            bindingList.ListChanged += (object sender, ListChangedEventArgs e) => calledListChanged = true;
+
+            bindingList.EndNew(itemIndex);
+            Assert.False(calledListChanged);
         }
 
         [Fact]

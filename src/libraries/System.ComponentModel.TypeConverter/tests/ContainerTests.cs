@@ -373,8 +373,11 @@ namespace System.ComponentModel.Tests
             Assert.False(object.ReferenceEquals(c1.Site, c6.Site));
         }
 
-        [Fact]
-        public void Add_SetSiteName_ReturnsExpected()
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("OtherName")]
+        public void Add_SetSiteName_GetReturnsExpected(string value)
         {
             var component = new Component();
             var container = new Container();
@@ -382,12 +385,12 @@ namespace System.ComponentModel.Tests
             container.Add(component, "Name1");
             Assert.Equal("Name1", component.Site.Name);
 
-            component.Site.Name = "OtherName";
-            Assert.Equal("OtherName", component.Site.Name);
-
-            // Setting to the same value is a nop.
-            component.Site.Name = "OtherName";
-            Assert.Equal("OtherName", component.Site.Name);
+            component.Site.Name = value;
+            Assert.Equal(value, component.Site.Name);
+        
+            // Set same.
+            component.Site.Name = value;
+            Assert.Equal(value, component.Site.Name);
         }
 
         [Fact]
